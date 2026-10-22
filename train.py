@@ -4,6 +4,7 @@ from pathlib import Path
 
 import duckdb
 import lightgbm as lgb
+import mlflow
 import numpy as np
 import pandas as pd
 
@@ -12,8 +13,16 @@ TRAIN_END = "2024-05-01"
 VAL_END = "2024-06-01"
 TRAIN_SAMPLE = int(sys.argv[1]) if len(sys.argv) > 1 else None
 BASELINE_MAE = 4.75
+
 FEATURES = ["pu_zone", "do_zone", "hour", "dow", "passenger_count"]
 ZONES = list(range(1, 266))
+PARAMS = dict(
+    objective="l1",
+    n_estimators=1500,
+    learning_rate=0.1,
+    num_leaves=127,
+    min_child_samples=200,
+)
 
 con = duckdb.connect()
 
@@ -42,38 +51,54 @@ if TRAIN_SAMPLE:
 train, val = prep(train), prep(val)
 print(f"training rows: {len(train):,}   validation rows: {len(val):,}")
 
-model = lgb.LGBMRegressor(
-    objective="l1",
-    n_estimators=1500,
-    learning_rate=0.1,
-    num_leaves=127,
-    min_child_samples=200,
-    n_jobs=-1,
-    verbose=-1,
-)
-start = time.time()
-model.fit(
-    train[FEATURES],
-    train["minutes"],
-    eval_set=[(val[FEATURES], val["minutes"])],
-    callbacks=[lgb.early_stopping(30), lgb.log_evaluation(50)],
-)
-print(f"trained in {(time.time() - start) / 60:.1f} min, best round {model.best_iteration_}")
+mlflow.set_experiment("taxi-duration")
+with mlflow.start_run():
+    mlflow.log_params(
+        {
+            **PARAMS,
+            "features": ",".join(FEATURES),
+            "train_rows": len(train),
+            "val_rows": len(val),
+            "train_end": TRAIN_END,
+        }
+    )
 
-pred = model.predict(val[FEATURES])
-error = pred - val["minutes"].to_numpy()
-mae = np.abs(error).mean()
-print(f"\nVALIDATION (May)")
-print(f"model MAE {mae:.2f} min   RMSE {np.sqrt((error ** 2).mean()):.2f} min")
-print(f"mean error (positive = predicts too long): {error.mean():+.2f} min")
-print(f"median error: {np.median(error):+.2f} min")
-print(f"baseline MAE {BASELINE_MAE:.2f} min -> model is {1 - mae / BASELINE_MAE:+.1%} lower")
+    model = lgb.LGBMRegressor(**PARAMS, n_jobs=-1, verbose=-1)
+    start = time.time()
+    model.fit(
+        train[FEATURES],
+        train["minutes"],
+        eval_set=[(val[FEATURES], val["minutes"])],
+        callbacks=[lgb.early_stopping(30), lgb.log_evaluation(100)],
+    )
+    train_minutes = (time.time() - start) / 60
+    print(f"trained in {train_minutes:.1f} min, best round {model.best_iteration_}")
 
-gain = model.booster_.feature_importance(importance_type="gain")
-print("\nFEATURE IMPORTANCE (share of total gain)")
-for name, share in sorted(zip(FEATURES, gain / gain.sum()), key=lambda x: -x[1]):
-    print(f"  {name:>16}: {share:.1%}")
+    pred = model.predict(val[FEATURES])
+    error = pred - val["minutes"].to_numpy()
+    metrics = {
+        "val_mae": float(np.abs(error).mean()),
+        "val_rmse": float(np.sqrt((error**2).mean())),
+        "val_mean_error": float(error.mean()),
+        "val_median_error": float(np.median(error)),
+        "baseline_val_mae": BASELINE_MAE,
+        "train_minutes": train_minutes,
+        "best_round": int(model.best_iteration_),
+    }
+    mlflow.log_metrics(metrics)
 
-Path("models").mkdir(exist_ok=True)
-model.booster_.save_model("models/lgbm.txt")
-print("\nsaved models/lgbm.txt")
+    print("\nVALIDATION (May)")
+    print(f"model MAE {metrics['val_mae']:.2f} min   RMSE {metrics['val_rmse']:.2f} min")
+    print(f"mean error (positive = predicts too long): {metrics['val_mean_error']:+.2f} min")
+    print(f"median error: {metrics['val_median_error']:+.2f} min")
+    print(f"baseline MAE {BASELINE_MAE:.2f} min -> model is {1 - metrics['val_mae'] / BASELINE_MAE:+.1%} lower")
+
+    gain = model.booster_.feature_importance(importance_type="gain")
+    print("\nFEATURE IMPORTANCE (share of total gain)")
+    for name, share in sorted(zip(FEATURES, gain / gain.sum()), key=lambda x: -x[1]):
+        print(f"  {name:>16}: {share:.1%}")
+
+    Path("models").mkdir(exist_ok=True)
+    model.booster_.save_model("models/lgbm.txt")
+    mlflow.log_artifact("models/lgbm.txt")
+    print("\nsaved models/lgbm.txt")
