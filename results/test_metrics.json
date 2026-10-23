@@ -1,0 +1,28 @@
+{
+  "test_month": "2024-06",
+  "test_rows": 3494581,
+  "overall_median": {
+    "mae": 9.15,
+    "rmse": 14.813,
+    "mean_error": -4.68,
+    "median_error": -0.717
+  },
+  "zone_pair_median": {
+    "mae": 5.001,
+    "rmse": 8.631,
+    "mean_error": -2.148,
+    "median_error": -0.467
+  },
+  "zone_pair_hour_median": {
+    "mae": 4.563,
+    "rmse": 8.016,
+    "mean_error": -1.941,
+    "median_error": -0.483
+  },
+  "lightgbm": {
+    "mae": 4.039,
+    "rmse": 6.83,
+    "mean_error": -1.767,
+    "median_error": -0.529
+  }
+}
