@@ -1,0 +1,12 @@
+venv/
+data/
+models/
+mlruns/
+mlartifacts/
+mlflow.db
+results/
+.git/
+.github/
+__pycache__/
+.pytest_cache/
+.DS_Store
