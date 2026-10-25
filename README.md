@@ -1,5 +1,16 @@
 # NYC Taxi Trip Duration
 
+## Run with Docker
+
+The image contains the code and libraries only. The trained model is not in the repo, so train it first (`python train.py`) and mount it into the container:
+
+```bash
+docker build -t nyc-taxi-duration .
+docker run --rm -p 8000:8000 -v "$(pwd)/models:/app/models:ro" nyc-taxi-duration
+```
+
+Then open http://127.0.0.1:8000/docs.
+
 ![Tests](https://github.com/julian17cervantes/nyc-taxi-duration/actions/workflows/tests.yml/badge.svg)
 
 Predicts how long a NYC yellow taxi trip will take from what is known at pickup, with a time-based evaluation against non-ML baselines, and serves the model through a FastAPI endpoint.
