@@ -50,7 +50,7 @@ if TRAIN_SAMPLE:
 train, val = prep(train), prep(val)
 print(f"training rows: {len(train):,}   validation rows: {len(val):,}")
 
-mlflow.set_experiment("taxi-duration-{YEAR}")
+mlflow.set_experiment(f"taxi-duration-{YEAR}")
 with mlflow.start_run():
     mlflow.log_params(
         {
