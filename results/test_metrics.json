@@ -1,28 +1,28 @@
 {
-  "test_month": "2024-06",
-  "test_rows": 3494581,
+  "test_month": "2026-06",
+  "test_rows": 3744498,
   "overall_median": {
-    "mae": 9.15,
-    "rmse": 14.813,
-    "mean_error": -4.68,
-    "median_error": -0.717
-  },
-  "zone_pair_median": {
-    "mae": 5.001,
-    "rmse": 8.631,
-    "mean_error": -2.148,
-    "median_error": -0.467
-  },
-  "zone_pair_hour_median": {
-    "mae": 4.563,
-    "rmse": 8.016,
-    "mean_error": -1.941,
+    "mae": 8.975,
+    "rmse": 13.604,
+    "mean_error": -3.766,
     "median_error": -0.483
   },
+  "zone_pair_median": {
+    "mae": 4.994,
+    "rmse": 8.009,
+    "mean_error": -1.941,
+    "median_error": -0.45
+  },
+  "zone_pair_hour_median": {
+    "mae": 4.508,
+    "rmse": 7.323,
+    "mean_error": -1.714,
+    "median_error": -0.467
+  },
   "lightgbm": {
-    "mae": 4.039,
-    "rmse": 6.83,
-    "mean_error": -1.767,
-    "median_error": -0.529
+    "mae": 4.046,
+    "rmse": 6.549,
+    "mean_error": -1.708,
+    "median_error": -0.574
   }
 }
