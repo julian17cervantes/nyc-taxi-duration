@@ -1,6 +1,7 @@
 import duckdb
+import sys
 
-PATH = "data/raw/yellow_tripdata_2024-01.parquet"
+PATH = sys.argv[1] if len(sys.argv) > 1 else "data/raw/yellow_tripdata_2024-01.parquet"
 con = duckdb.connect()
 
 print("COLUMNS")

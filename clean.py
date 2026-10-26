@@ -1,4 +1,5 @@
 from pathlib import Path
+from config import END, RAW_GLOB as RAW, START
 
 import duckdb
 

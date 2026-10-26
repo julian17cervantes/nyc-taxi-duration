@@ -1,3 +1,5 @@
+from config import BASELINE_VAL_MAE as BASELINE_MAE, START, TRAIN_END, VAL_END
+
 import sys
 import time
 from pathlib import Path
@@ -9,10 +11,7 @@ import numpy as np
 import pandas as pd
 
 DATA = "data/clean/trips.parquet"
-TRAIN_END = "2024-05-01"
-VAL_END = "2024-06-01"
 TRAIN_SAMPLE = int(sys.argv[1]) if len(sys.argv) > 1 else None
-BASELINE_MAE = 4.75
 
 FEATURES = ["pu_zone", "do_zone", "hour", "dow", "passenger_count"]
 ZONES = list(range(1, 266))
@@ -44,7 +43,7 @@ def prep(df):
     return df
 
 
-train = load("2024-01-01", TRAIN_END)
+train = load(START, TRAIN_END)
 val = load(TRAIN_END, VAL_END)
 if TRAIN_SAMPLE:
     train = train.sample(TRAIN_SAMPLE, random_state=0)

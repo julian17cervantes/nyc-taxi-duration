@@ -1,8 +1,8 @@
+from config import TRAIN_END, VAL_END
+
 import duckdb
 
 DATA = "data/clean/trips.parquet"
-TRAIN_END = "2024-05-01"
-VAL_END = "2024-06-01"
 MIN_N = 30
 
 con = duckdb.connect()

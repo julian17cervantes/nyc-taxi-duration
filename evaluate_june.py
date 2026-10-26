@@ -1,3 +1,5 @@
+from config import TEST_MONTH, TRAIN_END, VAL_END
+
 import json
 from pathlib import Path
 
@@ -7,8 +9,6 @@ import numpy as np
 import pandas as pd
 
 DATA = "data/clean/trips.parquet"
-TRAIN_END = "2024-05-01"
-VAL_END = "2024-06-01"
 MIN_N = 30
 FEATURES = ["pu_zone", "do_zone", "hour", "dow", "passenger_count"]
 ZONES = list(range(1, 266))
@@ -68,7 +68,7 @@ def score(column):
 
 
 results = {
-    "test_month": "2024-06",
+    "test_month": TEST_MONTH,
     "test_rows": len(test),
     "overall_median": score("p_global"),
     "zone_pair_median": score("p_pair"),
