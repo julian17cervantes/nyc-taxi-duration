@@ -9,4 +9,4 @@ VAL_END = f"{YEAR}-06-01"
 END = f"{YEAR}-07-01"
 TEST_MONTH = f"{YEAR}-06"
 
-BASELINE_VAL_MAE = float("nan")
+BASELINE_VAL_MAE = 5.15

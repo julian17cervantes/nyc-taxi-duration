@@ -1,4 +1,4 @@
-from config import BASELINE_VAL_MAE as BASELINE_MAE, START, TRAIN_END, VAL_END
+from config import BASELINE_VAL_MAE as BASELINE_MAE, START, TRAIN_END, VAL_END, YEAR
 
 import sys
 import time
@@ -50,7 +50,7 @@ if TRAIN_SAMPLE:
 train, val = prep(train), prep(val)
 print(f"training rows: {len(train):,}   validation rows: {len(val):,}")
 
-mlflow.set_experiment("taxi-duration")
+mlflow.set_experiment("taxi-duration-{YEAR}")
 with mlflow.start_run():
     mlflow.log_params(
         {
