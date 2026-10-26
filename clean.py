@@ -1,14 +1,13 @@
 from pathlib import Path
-from config import END, RAW_GLOB as RAW, START
 
 import duckdb
 
-RAW = "data/raw/yellow_tripdata_2024-*.parquet"
+from config import END, RAW_GLOB, START
+
 OUT_DIR = Path("data/clean")
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 OUT = OUT_DIR / "trips.parquet"
 
-START, END = "2024-01-01", "2024-07-01"
 MIN_MINUTES, MAX_MINUTES = 1, 180
 
 con = duckdb.connect()
@@ -19,7 +18,7 @@ SELECT tpep_pickup_datetime AS pickup,
        PULocationID AS pu_zone,
        DOLocationID AS do_zone,
        (epoch(tpep_dropoff_datetime) - epoch(tpep_pickup_datetime)) / 60.0 AS minutes
-FROM read_parquet('{RAW}', union_by_name=true)
+FROM read_parquet('{RAW_GLOB}', union_by_name=true)
 """)
 
 print("ROWS REMOVED BY EACH RULE (rules overlap, so these don't add up)")
